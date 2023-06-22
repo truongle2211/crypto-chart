@@ -1,36 +1,66 @@
-import logo from "./logo.svg";
 import "./App.css";
 import { useEffect, useState } from "react";
 import { fetchData } from "./utils/coin_market_cap";
+import { Table, Button, Layout, Row, Col } from "antd";
+import { Columns } from "./utils/columns";
+
+const { Header } = Layout;
+
+const headerStyle = {
+  textAlign: "center",
+  height: 64,
+  paddingInline: 50,
+  lineHeight: "64px",
+  backgroundColor: "white",
+};
+
+const buttonStyle = {
+  border: "20px",
+  margin: 20,
+};
 
 const App = () => {
   const [crypto, setCrypto] = useState([]);
 
-  useEffect(() => {
-    fetchData().then((response) => {
-      setCrypto(response);
-      console.log(response);
-      console.log(crypto);
-    });
-  });
+  const fetchDataAndSetState = async () => {
+    const result = await fetchData();
+    setCrypto(result);
+  };
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    const fetchDataInterval = async () => {
+      await fetchDataAndSetState();
+      const intervalId = setInterval(fetchData, 60000);
+      return intervalId;
+    };
+
+    const intervalId = fetchDataInterval();
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Header style={headerStyle}>CoinMarketCap API Latest listings</Header>
+      <Row>
+        <Col span={6}></Col>
+        <Col span={6}></Col>
+        <Col span={6}>
+          <Button
+            type="primary"
+            onClick={fetchDataAndSetState}
+            style={buttonStyle}
+          >
+            Refresh
+          </Button>
+        </Col>
+        <Col span={6}></Col>
+      </Row>
+
+      {crypto.length > 0 && (
+        <Table columns={Columns} dataSource={crypto} pagination={false} />
+      )}
     </div>
   );
 };
