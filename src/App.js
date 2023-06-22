@@ -1,7 +1,20 @@
-import logo from './logo.svg';
-import './App.css';
+import logo from "./logo.svg";
+import "./App.css";
+import { useEffect, useState } from "react";
+import { fetchData } from "./utils/coin_market_cap";
 
-function App() {
+const App = () => {
+  const [crypto, setCrypto] = useState([]);
+
+  useEffect(() => {
+    fetchData().then((response) => {
+      setCrypto(response);
+      console.log(response);
+      console.log(crypto);
+    });
+  });
+
+  useEffect(() => {}, []);
   return (
     <div className="App">
       <header className="App-header">
@@ -20,6 +33,6 @@ function App() {
       </header>
     </div>
   );
-}
+};
 
 export default App;
